@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VanillaJS Wallet Connection</title>
+
+    <!-- TAILWIND STYLING -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ethers.js - Needed for verifying signature, and various hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+
+    <!-- Our main script -->
+    <script src="./scripts.js"></script>
+</head>
+
+<body class="bg-zinc-900">
+    <div class="p-8">
+        <h1 class="text-2xl text-white mb-4">VanillaJS Wallet Connection</h1>
+
+        <p class="text-zinc-400 mb-4">Basic JavaScript demonstration to interact with a MetaMask wallet and a contract.
+        </p>
+
+        <div class="mb-8">
+            <button type="button" disabled id="button-connect"
+                class="h-10 bg-zinc-200 text-zinc-800 px-5 rounded-full font-medium disabled:bg-opacity-30 hover:bg-white transition-colors ease-in-out duration-200">
+                Connect Wallet (Unsupported)
+            </button>
+            <div id="div-error-connect" class="mt-4 bg-red-300 rounded p-6 text-red-800 hidden"></div>
+        </div>
+
+        <hr class="border-zinc-700 mb-8" />
+
+        <section id="section-connected" class="hidden">
+            <h2 id="wallet-connection" class="text-xl text-zinc-200 mb-4">Wallet Connection</h2>
+
+            <p class="text-zinc-400 mb-4">If you're seeing this then your wallet is connected.</p>
+
+            <div class="mb-4">
+                <button type="button" id="button-disconnect"
+                    class="h-10 mb-2 bg-zinc-200 text-zinc-800 px-5 rounded-full font-medium disabled:bg-opacity-30 hover:bg-white transition-colors ease-in-out duration-200">
+                    Disconnect*
+                </button>
+                <p class="text-sm text-zinc-300">
+                    <small>
+                        *Remember you're not really disconnecting unless the wallet removes the website from Connected
+                        Sites.
+                    </small>
+                </p>
+            </div>
+
+            <div class="mb-8">
+                <label class="block mb-2 text-zinc-600">Wallet Connected</label>
+                <code class="block bg-zinc-500 p-6 rounded bg-zinc-800 text-zinc-200">
+                    <pre id="pre-wallet-address">&nbsp;</pre>
+                </code>
+            </div>
+
+            <h2 id="wallet-network" class="text-xl text-zinc-200 mb-4">Wallet Network</h2>
+
+            <p class="text-zinc-400 mb-4">Here we'll make sure to switch networks to <span
+                    class="bg-zinc-700 text-zinc-200 py-1 px-1.5 rounded chain-name"></span>.</p>
+
+            <div class="mb-6">
+                <label class="block mb-2 text-zinc-600">Network</label>
+                <code class="block bg-zinc-500 p-6 rounded bg-zinc-800 text-zinc-200">
+                    <pre id="pre-wallet-network">&nbsp;</pre>
+                </code>
+            </div>
+
+            <div class="mb-6">
+                <button type="button" id="button-network"
+                    class="hidden h-10 mb-2 bg-zinc-200 text-zinc-800 px-5 rounded-full font-medium disabled:bg-opacity-30 hover:bg-white transition-colors ease-in-out duration-200">
+                    Switch Network To <span class="chain-name"></span>
+                </button>
+            </div>
+
+            <hr class="border-zinc-700 mb-8" />
+
+            <h2 id="contract-details" class="text-xl text-zinc-100 mb-4">Contract Details</h2>
+
+            <div id="div-error-network" class="mb-4 bg-red-300 rounded p-6 text-red-800">Please switch to <span
+                    class="chain-name"></span>. Currently on <span></span>.</div>
+
+            <p class="text-zinc-400 mb-4">These are all the interactions with a contract deployed to the <a
+                    class="text-blue-500 underline italic chain-link" href="#" target="_blank"></a>.</p>
+
+            <div class="mb-8">
+                <label class="block mb-2 text-zinc-600">ABI</label>
+                <code class="block bg-zinc-500 p-6 rounded bg-zinc-800 text-zinc-200 overflow-scroll max-h-[300px]">
+                    <pre id="pre-wallet-network">
+[
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_greeting",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            }
+        ],
+        "name": "NewGreeting",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "getGreeting",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_greeting",
+                "type": "string"
+            }
+        ],
+        "name": "setGreeting",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]                   </pre>
+                </code>
+            </div>
+
+            <h2 id="contract-read" class="text-xl text-zinc-100 mb-4">Contract Read</h2>
+
+            <p class="text-zinc-400 mb-4">Making a read request for <span
+                    class="bg-zinc-700 text-zinc-200 py-1 px-1.5 rounded">getGreeting</span>.</p>
+
+            <form id="form-contract-read">
+                <div class="mb-2">
+                    <button disabled type="submit"
+                        class="h-10 mb-2 bg-zinc-200 text-zinc-800 px-5 rounded-full font-medium disabled:bg-opacity-30 hover:bg-white transition-colors ease-in-out duration-200">
+                        Get Greeting
+                    </button>
+                </div>
+                <div class="mb-8">
+                    <label class="block mb-2 text-zinc-600">Response</label>
+                    <code class="block bg-zinc-500 p-6 rounded bg-zinc-800 text-zinc-200 overflow-scroll">
+                        <pre id="pre-contract-read"></pre>
+                    </code>
+                </div>
+            </form>
+
+            <h2 id="contract-write" class="text-xl text-zinc-100 mb-4">Contract Write</h2>
+
+            <p class="text-zinc-400 mb-4">Making a write request for <span
+                    class="bg-zinc-700 text-zinc-200 py-1 px-1.5 rounded">setGreeting</span>.</p>
+
+            <form id="form-contract-write">
+                <div class="mb-6">
+                    <label class="block mb-2 text-zinc-600">New Greeting</label>
+                    <input disabled class="h-10 w-full px-3 rounded border bg-white disabled:opacity-30"
+                        id="input-contract-write" type="text" name="greeting" placeholder="Ex: Your greeting..." />
+                </div>
+                <div class="mb-2">
+                    <button disabled type="submit"
+                        class="h-10 mb-2 bg-zinc-200 text-zinc-800 px-5 rounded-full font-medium disabled:bg-opacity-30 hover:bg-white transition-colors ease-in-out duration-200">
+                        Set Greeting
+                    </button>
+                </div>
+                <div class="mb-8">
+                    <label class="block mb-2 text-zinc-600">Response</label>
+                    <code class="block bg-zinc-500 p-6 rounded bg-zinc-800 text-zinc-200 overflow-scroll">
+                        <pre id="pre-contract-write"></pre>
+                    </code>
+                </div>
+            </form>
+
+            <hr class="border-zinc-700 mb-8" />
+        </section>
+
+        <p class="text-zinc-400 mb-4 text-sm">
+            Built By <a class="hover:text-zinc-200 transition-colors ease-in-out duration-200" target="_blank"
+                href="https://linktr.ee/codingwithmanny">
+                @codingwithmanny
+            </a>
+        </p>
+    </div>
+</body>
